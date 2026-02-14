@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة المعدل الدراسي الجزائرية | Algerian Grade Calculator</title>
+    
+    <!-- Google Fonts: Cairo for Modern Arabic Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for Visuals -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind Configuration for Algerian Theme -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dz: {
+                            green: '#006233',
+                            red: '#D21034',
+                            white: '#FFFFFF',
+                            bg: '#F3F4F6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles & Animations */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Smooth entry animation for rows */
+        .fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Input focus rings with Algerian Green */
+        .input-dz:focus {
+            outline: none;
+            border-color: #006233;
+            box-shadow: 0 0 0 3px rgba(0, 98, 51, 0.2);
+        }
+
+        /* Print styles */
+        @media print {
+            .no-print { display: none !important; }
+            .print-padding { padding: 0 !important; }
+            body { background: white; }
+            .shadow-lg { box-shadow: none !important; border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-md sticky top-0 z-50 border-t-4 border-dz-green">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <!-- Icon -->
+                <div class="w-10 h-10 rounded-full overflow-hidden shadow-lg flex-shrink-0">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Flag_of_Algeria.svg/512px-Flag_of_Algeria.svg.png" 
+         alt="Algeria" 
+         class="w-full h-full object-cover">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 3.666V19.124a1.5 1.5 0 01-2.927.461L12 18.257l-.073 1.328A1.5 1.5 0 018.927 19.124V9m0-2h.01M19 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900 leading-none">حاسبة المعدل الدراسي</h1>
+                    <p class="text-xs text-gray-500 font-medium mt-1">Custom Algerian Grade Calculator</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="resetData()" class="no-print p-2 text-gray-400 hover:text-dz-red transition-colors" title="إعادة تعيين">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+                <button onclick="window.print()" class="no-print p-2 text-gray-400 hover:text-dz-green transition-colors" title="طباعة">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left Column: Inputs -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Instructions / Info -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2 h-full bg-dz-red"></div>
+                <h2 class="text-lg font-bold text-gray-800 mb-2">كيفية الحساب؟</h2>
+                <p class="text-gray-600 text-sm leading-relaxed">
+                    قم بإضافة المواد والمعاملات. يتم حساب معدل المادة تلقائياً بناءً على الصيغة الجزائرية الشائعة:
+                    <span class="font-mono bg-gray-100 px-2 py-1 rounded text-dz-green font-bold text-xs md:text-sm mx-1">((التقويم + (الإختبار × 2)) ÷ 3)</span>
+                    <br>يمكنك تعديل النقاط والمعاملات بحرية تامة.
+                </p>
+            </div>
+
+            <!-- Subject List Container -->
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="font-bold text-gray-700 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-dz-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        قائمة المواد
+                    </h3>
+                    <div class="text-sm text-gray-500">
+                        مجموع المعاملات: <span id="total-coef" class="font-bold text-gray-800">0</span>
+                    </div>
+                </div>
+
+                <!-- Table Header (Desktop) -->
+                <div class="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <div class="col-span-4">المادة</div>
+                    <div class="col-span-2 text-center">التقويم/الفرض</div>
+                    <div class="col-span-2 text-center">الإختبار</div>
+                    <div class="col-span-2 text-center">المعامل</div>
+                    <div class="col-span-2 text-center">الإجراءات</div>
+                </div>
+
+                <!-- Rows Container -->
+                <div id="subjects-container" class="divide-y divide-gray-100">
+                    <!-- Dynamic Rows Will Be Injected Here -->
+                </div>
+
+                <!-- Add Button -->
+                <div class="p-4 bg-gray-50 border-t border-gray-100 no-print">
+                    <button onclick="addSubject()" class="w-full py-3 border-2 border-dashed border-dz-green text-dz-green rounded-xl hover:bg-green-50 transition-all flex items-center justify-center gap-2 font-bold group">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        إضافة مادة جديدة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Results & Stats -->
+        <div class="lg:col-span-1 space-y-6">
+            
+            <!-- Main Result Card -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 text-center border-t-8 border-gray-200 relative transition-colors duration-500" id="result-card">
+                <h3 class="text-gray-500 font-medium mb-4">المعدل العام</h3>
+                
+                <div class="relative w-40 h-40 mx-auto mb-4 flex items-center justify-center">
+                    <!-- Circular Progress Background -->
+                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                        <path class="text-gray-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
+                        <path id="circle-progress" class="text-dz-green transition-all duration-1000 ease-out" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
+                    </svg>
+                    <!-- Score Text -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="final-average" class="text-4xl font-black text-gray-800">0.00</span>
+                        <span class="text-xs text-gray-400">/ 20</span>
+                    </div>
+                </div>
+
+                <div id="verdict-container" class="mt-2 opacity-0 transition-opacity duration-500">
+                    <span id="verdict-badge" class="px-4 py-1 rounded-full text-sm font-bold bg-gray-200 text-gray-700">
+                        --
+                    </span>
+                    <p id="verdict-text" class="text-sm mt-2 text-gray-500">أدخل النقاط لحساب المعدل</p>
+                </div>
+            </div>
+
+            <!-- Stats / Chart -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <h3 class="font-bold text-gray-700 mb-4 text-sm">توزيع النقاط</h3>
+                <div class="relative h-48">
+                    <canvas id="gradesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-xs text-gray-500 mb-1">أعلى نقطة</div>
+                    <div id="best-subject" class="font-bold text-dz-green text-lg">--</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-xs text-gray-500 mb-1">أدنى نقطة</div>
+                    <div id="worst-subject" class="font-bold text-dz-red text-lg">--</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto py-6 no-print">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-500 text-sm">
+<footer class="mt-12 text-center text-slate-500 text-sm pb-8">
+    <p>جميع الحقوق محفوظة &copy; 2026 | Novi Moon</p>
+        </div>
+          </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State Management
+        let subjects = JSON.parse(localStorage.getItem('dzGrades')) || [
+            { id: Date.now(), name: 'الرياضيات', test: '', exam: '', coef: 4 },
+            { id: Date.now() + 1, name: 'الفيزياء', test: '', exam: '', coef: 3 },
+            { id: Date.now() + 2, name: 'العلوم الطبيعية', test: '', exam: '', coef: 3 },
+            { id: Date.now() + 3, name: 'اللغة العربية', test: '', exam: '', coef: 2 }
+        ];
+
+        // Chart Instance
+        let chartInstance = null;
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSubjects();
+            calculateResults();
+            initChart();
+        });
+
+        // 1. Render List
+        function renderSubjects() {
+            const container = document.getElementById('subjects-container');
+            container.innerHTML = '';
+
+            subjects.forEach((sub, index) => {
+                const row = document.createElement('div');
+                row.className = 'fade-in-up grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 p-4 md:px-6 md:py-4 items-center hover:bg-gray-50 transition-colors group';
+                row.style.animationDelay = `${index * 0.05}s`;
+                
+                // Calculate subject average for display preview
+                const subAvg = calculateSubjectAvg(sub.test, sub.exam);
+                const avgColor = subAvg >= 10 ? 'text-dz-green' : (subAvg > 0 ? 'text-dz-red' : 'text-gray-400');
+
+                row.innerHTML = `
+                    <!-- Name Input -->
+                    <div class="col-span-1 md:col-span-4 flex items-center gap-3">
+                        <div class="w-2 h-8 rounded-full ${subAvg >= 10 ? 'bg-dz-green' : 'bg-dz-red'} opacity-50 hidden md:block"></div>
+                        <input type="text" value="${sub.name}" 
+                            onchange="updateSubject(${sub.id}, 'name', this.value)"
+                            placeholder="اسم المادة"
+                            class="input-dz w-full bg-transparent font-bold text-gray-700 border-b border-transparent focus:border-dz-green px-2 py-1 transition-all" />
+                    </div>
+
+                    <!-- Mobile Labels -->
+                    <div class="md:hidden text-xs text-gray-400 mt-2 grid grid-cols-3 gap-2">
+                        <span>التقويم</span><span>الإختبار</span><span>المعامل</span>
+                    </div>
+
+                    <!-- Test Grade -->
+                    <div class="col-span-1 md:col-span-2 relative">
+                        <input type="number" min="0" max="20" step="0.25" value="${sub.test}" 
+                            oninput="updateSubject(${sub.id}, 'test', this.value)"
+                            placeholder="00"
+                            class="input-dz w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-center font-mono font-medium text-gray-700 focus:ring-2 focus:ring-dz-green focus:border-transparent transition-all" />
+                    </div>
+
+                    <!-- Exam Grade -->
+                    <div class="col-span-1 md:col-span-2 relative">
+                        <input type="number" min="0" max="20" step="0.25" value="${sub.exam}" 
+                            oninput="updateSubject(${sub.id}, 'exam', this.value)"
+                            placeholder="00"
+                            class="input-dz w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-center font-mono font-medium text-gray-700 focus:ring-2 focus:ring-dz-green focus:border-transparent transition-all" />
+                    </div>
+
+                    <!-- Coefficient -->
+                    <div class="col-span-1 md:col-span-2">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="adjustCoef(${sub.id}, -1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center">-</button>
+                            <input type="number" min="1" max="10" value="${sub.coef}" 
+                                onchange="updateSubject(${sub.id}, 'coef', this.value)"
+                                class="input-dz w-12 text-center font-bold text-gray-800 bg-transparent border-b border-gray-300 focus:border-dz-green p-1" />
+                            <button onclick="adjustCoef(${sub.id}, 1)" class="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Actions & Preview -->
+                    <div class="col-span-1 md:col-span-2 flex items-center justify-between md:justify-center gap-4 mt-2 md:mt-0">
+                        <span class="md:hidden font-bold text-sm text-gray-500">المعدل: <span class="${avgColor}">${subAvg > 0 ? subAvg.toFixed(2) : '--'}</span></span>
+                        <button onclick="deleteSubject(${sub.id})" class="text-gray-300 hover:text-dz-red transition-colors p-2 rounded-full hover:bg-red-50" title="حذف المادة">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // 2. Logic Functions
+        function addSubject() {
+            subjects.push({
+                id: Date.now(),
+                name: 'مادة جديدة',
+                test: '',
+                exam: '',
+                coef: 1
+            });
+            saveAndRender();
+        }
+
+        function deleteSubject(id) {
+            if(confirm('هل أنت متأكد من حذف هذه المادة؟')) {
+                subjects = subjects.filter(s => s.id !== id);
+                saveAndRender();
+            }
+        }
+
+        function updateSubject(id, field, value) {
+            const sub = subjects.find(s => s.id === id);
+            if (sub) {
+                if (field === 'name') sub.name = value;
+                else sub[field] = parseFloat(value) || (value === '' ? '' : 0);
+                
+                // Validate Grades (0-20)
+                if ((field === 'test' || field === 'exam') && value !== '') {
+                    if (sub[field] > 20) sub[field] = 20;
+                    if (sub[field] < 0) sub[field] = 0;
+                }
+                
+                saveData();
+                calculateResults(); // Real-time calc
+                updateChart();
+            }
+        }
+
+        function adjustCoef(id, amount) {
+            const sub = subjects.find(s => s.id === id);
+            if (sub) {
+                let newCoef = (sub.coef || 0) + amount;
+                if (newCoef < 1) newCoef = 1;
+                sub.coef = newCoef;
+                saveAndRender();
+            }
+        }
+
+        function calculateSubjectAvg(test, exam) {
+            // Formula: ((Test) + (Exam * 2)) / 3
+            // If test is missing, treat as 0? Or just use Exam? 
+            // Standard Algerian logic: if test is missing, usually it's required. 
+            // We will treat empty as 0 for calculation but check validity.
+            
+            let t = parseFloat(test) || 0;
+            let e = parseFloat(exam) || 0;
+            
+            // If both are empty, return 0 (not calculated)
+            if (test === '' && exam === '') return 0;
+
+            return (t + (e * 2)) / 3;
+        }
+
+        function calculateResults() {
+            let totalScore = 0;
+            let totalCoef = 0;
+            let bestGrade = -1;
+            let worstGrade = 21;
+            let bestName = '--';
+            let worstName = '--';
+            let hasData = false;
+
+            subjects.forEach(sub => {
+                // Only include in calculation if coefficients > 0
+                if (sub.coef > 0) {
+                    // Treat empty inputs as 0 for the live calculation
+                    let avg = calculateSubjectAvg(sub.test, sub.exam);
+                    
+                    totalScore += avg * sub.coef;
+                    totalCoef += sub.coef;
+
+                    if (sub.test !== '' || sub.exam !== '') {
+                        hasData = true;
+                        if (avg > bestGrade) { bestGrade = avg; bestName = sub.name; }
+                        if (avg < worstGrade) { worstGrade = avg; worstName = sub.name; }
+                    }
+                }
+            });
+
+            const finalAvg = totalCoef > 0 ? (totalScore / totalCoef) : 0;
+            
+            // Update UI
+            document.getElementById('total-coef').innerText = totalCoef;
+            
+            const avgDisplay = document.getElementById('final-average');
+            // Animate number
+            animateValue(avgDisplay, parseFloat(avgDisplay.innerText), finalAvg, 500);
+
+            // Update Circle Progress
+            const circle = document.getElementById('circle-progress');
+            const percent = (finalAvg / 20) * 100;
+            circle.setAttribute('stroke-dasharray', `${percent}, 100`);
+            
+            // Color Logic
+            const resultCard = document.getElementById('result-card');
+            const verdictContainer = document.getElementById('verdict-container');
+            const verdictBadge = document.getElementById('verdict-badge');
+            const verdictText = document.getElementById('verdict-text');
+
+            verdictContainer.style.opacity = hasData ? '1' : '0';
+
+            if (finalAvg >= 10) {
+                circle.classList.remove('text-dz-red');
+                circle.classList.add('text-dz-green');
+                resultCard.classList.remove('border-dz-red');
+                resultCard.classList.add('border-dz-green');
+                verdictBadge.innerText = 'ناجح';
+                verdictBadge.className = 'px-4 py-1 rounded-full text-sm font-bold bg-green-100 text-dz-green';
+                
+                // Appreciation
+                if(finalAvg >= 18) verdictText.innerText = 'ممتاز! تقدير رائع.';
+                else if(finalAvg >= 16) verdictText.innerText = 'جيد جداً! واصل الإجتهاد.';
+                else if(finalAvg >= 14) verdictText.innerText = 'جيد. نتيجة طيبة.';
+                else if(finalAvg >= 12) verdictText.innerText = 'قريب من الجيد. يمكنك التحسن.';
+                else verdictText.innerText = 'مقبول. مبروك النجاح. (راك نجحت بالسيف)';
+
+            } else {
+                circle.classList.remove('text-dz-green');
+                circle.classList.add('text-dz-red');
+                resultCard.classList.remove('border-dz-green');
+                resultCard.classList.add('border-dz-red');
+                verdictBadge.innerText = 'راسب';
+                verdictBadge.className = 'px-4 py-1 rounded-full text-sm font-bold bg-red-100 text-dz-red';
+                
+                if(finalAvg >= 9) verdictText.innerText = 'للأسف، أنت قريب جداً من المعدل.';
+                else verdictText.innerText = 'أعوذ بالله من الشيطان الرجيم.';
+            }
+
+            // Update Stats
+            if (hasData) {
+                document.getElementById('best-subject').innerHTML = `${bestGrade.toFixed(2)} <span class="text-xs text-gray-400 block font-normal truncate">${bestName}</span>`;
+                document.getElementById('worst-subject').innerHTML = `${worstGrade.toFixed(2)} <span class="text-xs text-gray-400 block font-normal truncate">${worstName}</span>`;
+            } else {
+                document.getElementById('best-subject').innerText = '--';
+                document.getElementById('worst-subject').innerText = '--';
+            }
+        }
+
+        // 3. Storage & Utils
+        function saveData() {
+            localStorage.setItem('dzGrades', JSON.stringify(subjects));
+        }
+
+        function saveAndRender() {
+            saveData();
+            renderSubjects();
+            calculateResults();
+            updateChart();
+        }
+
+        function resetData() {
+            if(confirm('هل تريد مسح جميع البيانات؟')) {
+                subjects = [
+                    { id: Date.now(), name: 'مادة 1', test: '', exam: '', coef: 1 }
+                ];
+                saveAndRender();
+            }
+        }
+
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = (progress * (end - start) + start).toFixed(2);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // 4. Chart Logic
+        function initChart() {
+            const ctx = document.getElementById('gradesChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'معدل المادة',
+                        data: [],
+                        backgroundColor: [],
+                        borderRadius: 4,
+                        barThickness: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 20,
+                            grid: { display: true, drawBorder: false }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+            updateChart();
+        }
+
+        function updateChart() {
+            if (!chartInstance) return;
+            
+            const labels = subjects.map(s => s.name);
+            const data = subjects.map(s => calculateSubjectAvg(s.test, s.exam));
+            const colors = data.map(v => v >= 10 ? '#006233' : '#D21034');
+
+            chartInstance.data.labels = labels;
+            chartInstance.data.datasets[0].data = data;
+            chartInstance.data.datasets[0].backgroundColor = colors;
+            chartInstance.update();
+        }
+
+    </script>
+</body>
+</html>
